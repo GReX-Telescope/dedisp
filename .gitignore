@@ -2,3 +2,5 @@
 lib/
 include/
 example/testdedisp
+build/
+install/
