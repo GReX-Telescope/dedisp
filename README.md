@@ -4,7 +4,7 @@ This repositry is derived from Ben Barsdell's original GPU De-dedispersion libra
 
 Installation Instructions:
 
-1.  git clone https://github.com/ajameson/dedisp.git
+1.  git clone https://github.com/GReX-Telescope/dedisp.git
 2.  mkdir build && cd build
 3.  cmake .. && make install
 
