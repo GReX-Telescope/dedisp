@@ -24,26 +24,16 @@ set_target_properties(testdedisp PROPERTIES LINKER_LANGUAGE C)
 
 # Set installation 
 include(GNUInstallDirs)
-install(TARGETS ${PROJECT_NAME}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(
+  TARGETS ${PROJECT_NAME}
+  EXPORT DedispConfig
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 # Tests
 enable_testing()
 add_test(NAME testdedisp COMMAND $<TARGET_FILE:testdedisp>)
 
 # CMake Config Stuff
-include(CMakePackageConfigHelpers)
-
-configure_package_config_file(DedispConfig.cmake.in
-  ${CMAKE_CURRENT_BINARY_DIR}/DedispConfig.cmake
-  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/dedisp/cmake)
-
-write_basic_package_version_file(
-    ${CMAKE_CURRENT_BINARY_DIR}/DedispConfigVersion.cmake
-    VERSION 1.0.3
-    COMPATIBILITY SameMajorVersion)
-
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/DedispConfig.cmake
-              ${CMAKE_CURRENT_BINARY_DIR}/DedispConfigVersion.cmake
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/dedisp/cmake)
+export(TARGETS dedisp FILE "${CMAKE_CURRENT_BINARY_DIR}/DedispConfig.cmake")
+install(EXPORT DedispConfig DESTINATION "${CMAKE_INSTALL_DATADIR}/dedisp/cmake")
