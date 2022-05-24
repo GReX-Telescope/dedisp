@@ -209,7 +209,8 @@ dedisp_error dedisp_create_plan(dedisp_plan *plan_, dedisp_size nchans,
   generate_delay_table(&plan->delay_table[0], plan->nchans, dt, f0, df);
   try {
     plan->d_delay_table.resize(plan->nchans);
-  } catch (...) {
+  } catch (thrust::system_error e) {
+    std::cout << e.what() << std::endl;
     dedisp_destroy_plan(plan);
     throw_error(DEDISP_MEM_ALLOC_FAILED);
   }

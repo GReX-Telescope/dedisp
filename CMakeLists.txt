@@ -7,7 +7,7 @@ find_package(CUDAToolkit REQUIRED)
 
 set(CMAKE_CUDA_SEPARABLE_COMPILATION ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-set(KEEP_PTX FALSE CACHE BOOL "Keep kernel PTX files for build targets")
+set(CMAKE_CUDA_RUNTIME_LIBRARY Static)
 
 # Set arch
 if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
@@ -26,7 +26,7 @@ endif()
 
 # Compiler Flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
-set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Xcompiler=-Wall")
+set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -O3 -use_fast_math -Xcompiler=-Wall ")
 
 # Debug (TODO REMOVE)
 add_compile_definitions(DEDISP_DEBUG=true)
@@ -34,8 +34,7 @@ add_compile_definitions(DEDISP_DEBUG=true)
 # Include build stuff
 include_directories(src)
 add_library(${PROJECT_NAME} SHARED src/dedisp.cu)
-set_property(TARGET ${PROJECT_NAME} PROPERTY CUDA_RESOLVE_DEVICE_SYMBOLS ON)
-
+target_link_libraries(${PROJECT_NAME} CUDA::cudart_static)
 install(FILES src/dedisp.h TYPE INCLUDE)
 
 # Set installation 
@@ -48,7 +47,7 @@ install(
 
 # Build test program
 add_executable(testdedisp example/testdedisp.c example/gasdev.c example/ran1.c)
-target_link_libraries(testdedisp ${PROJECT_NAME} m ${CUDA_LIBRARIES})
+target_link_libraries(testdedisp ${PROJECT_NAME} m CUDA::cudart_static)
 set_target_properties(testdedisp PROPERTIES LINKER_LANGUAGE C)
 install(TARGETS testdedisp DESTINATION ${CMAKE_INSTALL_BINDIR})
 
