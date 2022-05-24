@@ -10,9 +10,13 @@ if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
   set(CMAKE_CUDA_ARCHITECTURES "35;50;75")
 endif()
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Xcompiler=-Wall")
+
 # Include build stuff
 include_directories(src)
 add_library(${PROJECT_NAME} SHARED src/dedisp.cu)
+set_property(TARGET ${PROJECT_NAME} PROPERTY CUDA_RESOLVE_DEVICE_SYMBOLS ON)
 
 install(FILES src/dedisp.h TYPE INCLUDE)
 
