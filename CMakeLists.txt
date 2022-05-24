@@ -35,12 +35,6 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY CUDA_RESOLVE_DEVICE_SYMBOLS ON)
 
 install(FILES src/dedisp.h TYPE INCLUDE)
 
-# Build test program
-add_executable(testdedisp example/testdedisp.c example/gasdev.c example/ran1.c)
-target_link_libraries(testdedisp PRIVATE ${PROJECT_NAME} m ${CUDA_LIBRARIES})
-set_target_properties(testdedisp PROPERTIES LINKER_LANGUAGE C) 
-install(TARGETS testdedisp RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-
 # Set installation 
 include(GNUInstallDirs)
 install(
@@ -48,6 +42,12 @@ install(
   EXPORT DedispConfig
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+# Build test program
+add_executable(testdedisp example/testdedisp.c example/gasdev.c example/ran1.c)
+target_link_libraries(testdedisp ${PROJECT_NAME} m ${CUDA_LIBRARIES})
+set_target_properties(testdedisp PROPERTIES LINKER_LANGUAGE C)
+install(TARGETS testdedisp DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 # Tests
 enable_testing()
