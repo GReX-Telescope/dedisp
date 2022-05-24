@@ -39,6 +39,7 @@ install(FILES src/dedisp.h TYPE INCLUDE)
 add_executable(testdedisp example/testdedisp.c example/gasdev.c example/ran1.c)
 target_link_libraries(testdedisp PRIVATE ${PROJECT_NAME} m ${CUDA_LIBRARIES})
 set_target_properties(testdedisp PROPERTIES LINKER_LANGUAGE C) 
+install(TARGETS testdedisp RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 # Set installation 
 include(GNUInstallDirs)
