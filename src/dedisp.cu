@@ -347,7 +347,10 @@ dedisp_float *dedisp_generate_dm_list_guru(dedisp_float dm_start,
 
 dedisp_error dedisp_set_device(int device_idx) {
   if (cudaGetLastError() != cudaSuccess) {
-    std::cout << cudaGetLastError() << std::endl;
+#if defined(DEDISP_DEBUG) && DEDISP_DEBUG
+    cudaError_t err = cudaGetLastError();
+    std::cout << cudaGetErrorString(err) << std::endl;
+#endif
     throw_error(DEDISP_PRIOR_GPU_ERROR);
   }
 
