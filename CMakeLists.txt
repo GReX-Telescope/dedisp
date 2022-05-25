@@ -7,7 +7,7 @@ find_package(CUDAToolkit REQUIRED)
 
 set(CMAKE_CUDA_SEPARABLE_COMPILATION ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-set(CMAKE_CUDA_RUNTIME_LIBRARY Static)
+set(CMAKE_CUDA_RUNTIME_LIBRARY Shared)
 
 # Set arch
 if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
@@ -34,7 +34,7 @@ add_compile_definitions(DEDISP_DEBUG=true)
 # Include build stuff
 include_directories(src)
 add_library(${PROJECT_NAME} SHARED src/dedisp.cu)
-target_link_libraries(${PROJECT_NAME} CUDA::cudart_static)
+target_link_libraries(${PROJECT_NAME})
 install(FILES src/dedisp.h TYPE INCLUDE)
 
 # Set installation 
@@ -47,7 +47,7 @@ install(
 
 # Build test program
 add_executable(testdedisp example/testdedisp.c example/gasdev.c example/ran1.c)
-target_link_libraries(testdedisp ${PROJECT_NAME} m CUDA::cudart_static)
+target_link_libraries(testdedisp ${PROJECT_NAME} m CUDA::cudart)
 set_target_properties(testdedisp PROPERTIES LINKER_LANGUAGE C)
 install(TARGETS testdedisp DESTINATION ${CMAKE_INSTALL_BINDIR})
 
