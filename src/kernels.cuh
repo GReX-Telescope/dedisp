@@ -424,7 +424,7 @@ bool dedisperse(const dedisp_word *d_in, dedisp_size in_stride,
   // Check for kernel errors
 #ifdef DEDISP_DEBUG
   // cudaStreamSynchronize(stream);
-  cudaThreadSynchronize();
+  cudaDeviceSynchronize();
   cudaError_t cuda_error = cudaGetLastError();
   if (cuda_error != cudaSuccess) {
     return false;

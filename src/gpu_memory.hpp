@@ -41,7 +41,7 @@ bool copy_host_to_device(T *dst, const T *src, gpu_size_t count,
   cudaMemcpy /*Async*/ (dst, src, count * sizeof(T),
                         cudaMemcpyHostToDevice /*, stream*/);
   //#ifdef DEDISP_DEBUG
-  cudaThreadSynchronize();
+  cudaDeviceSynchronize();
   cudaError_t error = cudaGetLastError();
   if (error != cudaSuccess) {
     return false;
@@ -56,7 +56,7 @@ bool copy_device_to_host(T *dst, const T *src, gpu_size_t count,
   cudaMemcpy /*Async*/ (dst, src, count * sizeof(T),
                         cudaMemcpyDeviceToHost /*, stream*/);
   //#ifdef DEDISP_DEBUG
-  cudaThreadSynchronize();
+  cudaDeviceSynchronize();
   cudaError_t error = cudaGetLastError();
   if (error != cudaSuccess) {
     return false;
@@ -75,7 +75,7 @@ bool copy_host_to_symbol(const char* symbol, const T* src,
 							0, cudaMemcpyHostToDevice/*,
 													   stream*/);
 	//#ifdef DEDISP_DEBUG
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
 	cudaError_t error = cudaGetLastError();
 	if( error != cudaSuccess ) {
 		return false;
@@ -91,7 +91,7 @@ bool copy_device_to_symbol(/*const char**/U symbol, const T* src,
 							0, cudaMemcpyDeviceToDevice,
 							stream);
 	//#ifdef DEDISP_DEBUG
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
 	cudaError_t error = cudaGetLastError();
 	if( error != cudaSuccess ) {
 		return false;
@@ -112,7 +112,7 @@ bool copy_host_to_device_2d(T *dst, gpu_size_t dst_stride, const U *src,
                           width_bytes, height,
                           cudaMemcpyHostToDevice /*, stream*/);
   //#ifdef DEDISP_DEBUG
-  cudaThreadSynchronize();
+  cudaDeviceSynchronize();
   cudaError_t error = cudaGetLastError();
   if (error != cudaSuccess) {
     return false;
@@ -129,7 +129,7 @@ bool copy_device_to_host_2d(T *dst, gpu_size_t dst_stride, const U *src,
   cudaMemcpy2D /*Async*/ (dst, dst_stride, src, src_stride, width_bytes, height,
                           cudaMemcpyDeviceToHost /*, stream*/);
   //#ifdef DEDISP_DEBUG
-  cudaThreadSynchronize();
+  cudaDeviceSynchronize();
   cudaError_t error = cudaGetLastError();
   if (error != cudaSuccess) {
     return false;
@@ -145,7 +145,7 @@ bool copy_device_to_device_2d(T *dst, gpu_size_t dst_stride, const U *src,
   cudaMemcpy2D /*Async*/ (dst, dst_stride, src, src_stride, width_bytes, height,
                           cudaMemcpyDeviceToDevice /*, stream*/);
   //#ifdef DEDISP_DEBUG
-  cudaThreadSynchronize();
+  cudaDeviceSynchronize();
   cudaError_t error = cudaGetLastError();
   if (error != cudaSuccess) {
     return false;
