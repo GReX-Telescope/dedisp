@@ -418,7 +418,7 @@ dedisp_size dedisp_get_dm_delay(const dedisp_plan plan, int dm_trial) {
   if (0 == plan->dm_count) {
     throw_getter_error(DEDISP_NO_DM_LIST_SET, 0);
   }
-  if (dm_trial < 0 || dm_trial >= plan->dm_count) {
+  if (dm_trial < 0 || dm_trial >= int(plan->dm_count)) {
     throw_getter_error(DEDISP_UNKNOWN_ERROR, 0);
   }
   return (plan->dm_list[dm_trial] * plan->delay_table[plan->nchans - 1] + 0.5);

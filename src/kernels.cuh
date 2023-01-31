@@ -26,6 +26,12 @@
 #include <thrust/iterator/counting_iterator.h>
 #include <thrust/transform.h> // For scrunch_x2
 
+// CUDA Deprecations
+#include <cuda_runtime_api.h>
+#if CUDART_VERSION < 12000
+#  define DEDISP_HAVE_TEXTURE_SUPPORT
+#endif // CUDART_VERSION
+
 // Kernel tuning parameters
 #define DEDISP_BLOCK_SIZE 256
 #define DEDISP_BLOCK_SAMPS 8
@@ -34,8 +40,10 @@
 __constant__ dedisp_float c_delay_table[DEDISP_MAX_NCHANS];
 __constant__ dedisp_bool c_killmask[DEDISP_MAX_NCHANS];
 
-// Texture reference for input data
-texture<dedisp_word, 1, cudaReadModeElementType> t_in;
+#ifdef DEDISP_HAVE_TEXTURE_SUPPORT
+  // Texture reference for input data
+  texture<dedisp_word, 1, cudaReadModeElementType> t_in;
+#endif
 
 template <int NBITS, typename T = unsigned int> struct max_value {
   static const T value = (((unsigned)1 << (NBITS - 1)) - 1) * 2 + 1;
@@ -215,6 +223,7 @@ __global__ void dedisperse_kernel(
           // Compute the integer delay
           dedisp_size delay = __float2uint_rn(dm * frac_delay);
 
+#ifdef DEDISP_HAVE_TEXTURE_SUPPORT
           if (USE_TEXTURE_MEM) { // Pre-Fermi path
                                  // Loop over samples per thread
             // Note: Unrolled to ensure the sum[] array is stored in regs
@@ -229,7 +238,9 @@ __global__ void dedisperse_kernel(
                   /*__umul24*/ (c_killmask[chan_idx] * //,
                                 extract_subword<IN_NBITS>(sample, chan_sub));
             }
-          } else { // Fermi path
+          } else 
+#endif // DEDISP_HAVE_TEXTURE_SUPPORT
+                 { // Fermi path
                    // Note: Unrolled to ensure the sum[] array is stored in regs
 #pragma unroll
             for (dedisp_size s = 0; s < SAMPS_PER_THREAD; ++s) {
@@ -283,6 +294,7 @@ __global__ void dedisperse_kernel(
 }
 
 bool check_use_texture_mem() {
+#ifdef DEDISP_HAVE_TEXTURE_SUPPORT
   // Decides based on GPU architecture
   int device_idx;
   cudaGetDevice(&device_idx);
@@ -291,6 +303,9 @@ bool check_use_texture_mem() {
   // Fermi runs worse with texture mem
   bool use_texture_mem = (device_props.major < 2);
   return use_texture_mem;
+#else // DEDISP_HAVE_TEXTURE_SUPPORT
+  return false;
+#endif // DEDISP_HAVE_TEXTURE_SUPPORT
 }
 
 bool dedisperse(const dedisp_word *d_in, dedisp_size in_stride,
@@ -310,7 +325,7 @@ bool dedisperse(const dedisp_word *d_in, dedisp_size in_stride,
     MAX_CUDA_GRID_SIZE_Y = 65535,
     MAX_CUDA_1D_TEXTURE_SIZE = (1 << 27)
   };
-
+#ifdef DEDISP_HAVE_TEXTURE_SUPPORT
   // Initialise texture memory if necessary
   // --------------------------------------
   // Determine whether we should use texture memory
@@ -335,6 +350,7 @@ bool dedisperse(const dedisp_word *d_in, dedisp_size in_stride,
     }
 #endif // DEDISP_DEBUG
   }
+#endif // DEDISP_HAVE_TEXTURE_SUPPORT
   // --------------------------------------
 
   // Define thread decomposition
@@ -372,6 +388,7 @@ bool dedisperse(const dedisp_word *d_in, dedisp_size in_stride,
       out_stride, d_dm_list, batch_in_stride, batch_dm_stride,                 \
       batch_chan_stride, batch_out_stride)
   // Note: Here we dispatch dynamically on nbits for supported values
+  #ifdef DEDISP_HAVE_TEXTURE_SUPPORT
   if (use_texture_mem) {
     switch (in_nbits) {
     case 1:
@@ -395,7 +412,9 @@ bool dedisperse(const dedisp_word *d_in, dedisp_size in_stride,
     default: /* should never be reached */
       break;
     }
-  } else {
+  } else
+  #endif // DEDISP_HAVE_TEXTURE_SUPPORT 
+        {
     switch (in_nbits) {
     case 1:
       DEDISP_CALL_KERNEL(1, false);
